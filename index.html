@@ -20,113 +20,162 @@
       border-radius: 16px;
       padding: 2rem;
       width: 100%;
-      max-width: 640px;
+      max-width: 680px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     }
     h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.5rem; color: #1a1a1a; }
     .upload-area {
       border: 1.5px dashed #ccc;
       border-radius: 12px;
-      padding: 2rem;
+      padding: 1.5rem;
       text-align: center;
       cursor: pointer;
-      margin-bottom: 1rem;
       transition: border-color 0.2s;
     }
     .upload-area:hover { border-color: #888; }
     .upload-area.has-image { border-style: solid; border-color: #4a90d9; }
     .upload-area p { color: #888; font-size: 14px; }
-    #preview { max-width: 100%; border-radius: 8px; margin-top: 1rem; display: none; }
+    #preview { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 0.75rem; display: none; object-fit: contain; }
     #fileInput { display: none; }
-    .btn {
-      width: 100%;
-      padding: 12px;
-      background: #1a1a1a;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      cursor: pointer;
-      margin-top: 1rem;
-    }
-    .btn:disabled { background: #ccc; cursor: not-allowed; }
-    .btn:hover:not(:disabled) { background: #333; }
 
     .status-box {
       display: none;
       margin-top: 1rem;
-      padding: 1rem;
+      padding: 0.75rem 1rem;
       background: #f8f8f5;
       border-radius: 10px;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .status-box.visible { display: flex; }
     .spinner {
-      width: 20px;
-      height: 20px;
+      width: 18px; height: 18px;
       border: 2px solid #ddd;
       border-top-color: #1a1a1a;
       border-radius: 50%;
       flex-shrink: 0;
       animation: spin 0.8s linear infinite;
     }
-    .spinner.done {
-      border-color: #4caf50;
-      border-top-color: #4caf50;
-      animation: none;
-    }
-    .spinner.error {
-      border-color: #e53935;
-      border-top-color: #e53935;
-      animation: none;
-    }
+    .spinner.done { border-color: #4caf50; border-top-color: #4caf50; animation: none; }
+    .spinner.error { border-color: #e53935; border-top-color: #e53935; animation: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .status-text { font-size: 13px; color: #555; line-height: 1.5; }
-    .status-text .step { color: #1a1a1a; font-weight: 500; }
-    .status-text .timer { color: #aaa; font-size: 12px; margin-top: 2px; }
+    .status-text { font-size: 13px; color: #555; }
+    .status-step { color: #1a1a1a; font-weight: 500; }
+    .status-timer { color: #aaa; font-size: 12px; }
 
-    #result {
-      margin-top: 1.5rem;
-      padding: 1.5rem;
+    .action-area {
+      display: none;
+      margin-top: 1.25rem;
+    }
+    .action-area.visible { display: block; }
+    .quick-label { font-size: 12px; color: #aaa; margin-bottom: 8px; }
+    .quick-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    .quick-btn {
+      padding: 6px 14px;
+      font-size: 13px;
+      border: 0.5px solid #ddd;
+      border-radius: 20px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #333;
+    }
+    .quick-btn:hover { background: #f0f0f0; border-color: #bbb; }
+    .quick-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 0.5px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+    }
+    .input-row input:focus { border-color: #888; }
+    .input-row input:disabled { background: #f5f5f5; }
+    .send-btn {
+      padding: 10px 18px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .send-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .send-btn:hover:not(:disabled) { background: #333; }
+
+    .results { margin-top: 1.25rem; }
+    .result-item {
+      margin-bottom: 1rem;
+      padding: 1.25rem;
       background: #fafaf8;
       border-radius: 12px;
       font-size: 14px;
       line-height: 1.8;
       color: #2a2a2a;
-      display: none;
-      white-space: pre-wrap;
     }
+    .result-q {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+    .result-a { white-space: pre-wrap; }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>紫微斗數命盤解讀</h1>
 
-    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
       <p id="uploadText">點此上傳命盤圖片</p>
       <img id="preview" />
     </div>
     <input type="file" id="fileInput" accept="image/*" />
 
-    <button class="btn" id="analyzeBtn" disabled onclick="analyze()">開始解讀</button>
-
     <div class="status-box" id="statusBox">
       <div class="spinner" id="spinner"></div>
       <div class="status-text">
-        <div class="step" id="stepText"></div>
-        <div class="timer" id="timerText"></div>
+        <div class="status-step" id="stepText"></div>
+        <div class="status-timer" id="timerText"></div>
       </div>
     </div>
 
-    <div id="result"></div>
+    <div class="action-area" id="actionArea">
+      <div class="quick-label">快速選擇</div>
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="ask('請分析命宮主星、個性與人生格局')">命宮分析</button>
+        <button class="quick-btn" onclick="ask('請分析事業宮與財帛宮，包含工作運與財運')">事業財帛</button>
+        <button class="quick-btn" onclick="ask('請分析夫妻宮，包含婚姻與感情運勢')">婚姻感情</button>
+        <button class="quick-btn" onclick="ask('請分析疾厄宮，包含健康狀況與注意事項')">健康疾厄</button>
+        <button class="quick-btn" onclick="ask('請分析目前大限與流年運勢')">大限流年</button>
+        <button class="quick-btn" onclick="ask('請對這張命盤進行完整的十二宮解讀')">完整解讀</button>
+      </div>
+      <div class="input-row">
+        <input type="text" id="customQ" placeholder="或自行輸入問題..." />
+        <button class="send-btn" id="sendBtn" onclick="askCustom()">送出</button>
+      </div>
+    </div>
+
+    <div class="results" id="results"></div>
   </div>
 
   <script>
     let base64Image = '';
     let mimeType = '';
+    let knowledge = '';
     let timerInterval = null;
     let seconds = 0;
+    let busy = false;
 
     document.getElementById('fileInput').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -135,27 +184,32 @@
       const reader = new FileReader();
       reader.onload = function(ev) {
         base64Image = ev.target.result.split(',')[1];
-        const preview = document.getElementById('preview');
-        preview.src = ev.target.result;
-        preview.style.display = 'block';
+        document.getElementById('preview').src = ev.target.result;
+        document.getElementById('preview').style.display = 'block';
         document.getElementById('uploadText').style.display = 'none';
-        document.querySelector('.upload-area').classList.add('has-image');
-        document.getElementById('analyzeBtn').disabled = false;
+        document.getElementById('uploadArea').classList.add('has-image');
+        loadKnowledge();
       };
       reader.readAsDataURL(file);
+    });
+
+    document.getElementById('customQ').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') askCustom();
     });
 
     function startTimer() {
       seconds = 0;
       clearInterval(timerInterval);
+      document.getElementById('timerText').textContent = '';
       timerInterval = setInterval(function() {
         seconds++;
         document.getElementById('timerText').textContent = '已等待 ' + seconds + ' 秒';
       }, 1000);
     }
 
-    function stopTimer() {
+    function stopTimer(label) {
       clearInterval(timerInterval);
+      document.getElementById('timerText').textContent = label || ('完成，共 ' + seconds + ' 秒');
     }
 
     function setStep(text) {
@@ -164,58 +218,85 @@
 
     function showStatus() {
       document.getElementById('statusBox').classList.add('visible');
-    }
-
-    function setDone() {
-      stopTimer();
-      document.getElementById('spinner').className = 'spinner done';
-      document.getElementById('timerText').textContent = '完成，共花費 ' + seconds + ' 秒';
-    }
-
-    function setError() {
-      stopTimer();
-      document.getElementById('spinner').className = 'spinner error';
-    }
-
-    function analyze() {
-      const btn = document.getElementById('analyzeBtn');
-      const result = document.getElementById('result');
-
-      btn.disabled = true;
-      result.style.display = 'none';
       document.getElementById('spinner').className = 'spinner';
+    }
 
+    function setLocked(locked) {
+      busy = locked;
+      document.querySelectorAll('.quick-btn').forEach(b => b.disabled = locked);
+      document.getElementById('sendBtn').disabled = locked;
+      document.getElementById('customQ').disabled = locked;
+    }
+
+    function loadKnowledge() {
       showStatus();
       setStep('正在讀取知識庫...');
       startTimer();
 
-      setTimeout(function() {
-        setStep('知識庫載入完成，送出命盤圖...');
-      }, 1500);
-
-      setTimeout(function() {
-        setStep('Gemini 分析中，請稍候...');
-      }, 3000);
-
       google.script.run
         .withSuccessHandler(function(data) {
           if (data.error) {
-            setStep('錯誤：' + data.error);
-            setError();
-          } else {
-            setStep('解讀完成');
-            setDone();
-            result.textContent = data.result;
-            result.style.display = 'block';
+            setStep('知識庫載入失敗：' + data.error);
+            document.getElementById('spinner').className = 'spinner error';
+            stopTimer('');
+            return;
           }
-          btn.disabled = false;
+          knowledge = data.knowledge;
+          setStep('知識庫載入完成，請選擇或輸入問題');
+          document.getElementById('spinner').className = 'spinner done';
+          stopTimer('知識庫已就緒');
+          document.getElementById('actionArea').classList.add('visible');
         })
         .withFailureHandler(function(err) {
           setStep('錯誤：' + err.message);
-          setError();
-          btn.disabled = false;
+          document.getElementById('spinner').className = 'spinner error';
+          stopTimer('');
         })
-        .analyze(base64Image, mimeType);
+        .loadKnowledge();
+    }
+
+    function ask(question) {
+      if (busy) return;
+      setLocked(true);
+      showStatus();
+      document.getElementById('spinner').className = 'spinner';
+      setStep('Gemini 分析中...');
+      startTimer();
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          stopTimer('完成，共 ' + seconds + ' 秒');
+          setStep('完成');
+          document.getElementById('spinner').className = 'spinner done';
+          if (data.error) {
+            addResult(question, '錯誤：' + data.error);
+          } else {
+            addResult(question, data.result);
+          }
+          setLocked(false);
+        })
+        .withFailureHandler(function(err) {
+          stopTimer('');
+          setStep('錯誤：' + err.message);
+          document.getElementById('spinner').className = 'spinner error';
+          setLocked(false);
+        })
+        .askGemini(knowledge, base64Image, mimeType, question);
+    }
+
+    function askCustom() {
+      const q = document.getElementById('customQ').value.trim();
+      if (!q || busy) return;
+      document.getElementById('customQ').value = '';
+      ask(q);
+    }
+
+    function addResult(question, answer) {
+      const div = document.createElement('div');
+      div.className = 'result-item';
+      div.innerHTML = '<div class="result-q">' + question + '</div>' +
+                      '<div class="result-a">' + answer + '</div>';
+      document.getElementById('results').prepend(div);
     }
   </script>
 </body>

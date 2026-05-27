@@ -23,12 +23,7 @@
       max-width: 640px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     }
-    h1 {
-      font-size: 20px;
-      font-weight: 500;
-      margin-bottom: 1.5rem;
-      color: #1a1a1a;
-    }
+    h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.5rem; color: #1a1a1a; }
     .upload-area {
       border: 1.5px dashed #ccc;
       border-radius: 12px;
@@ -56,13 +51,7 @@
     }
     .btn:disabled { background: #ccc; cursor: not-allowed; }
     .btn:hover:not(:disabled) { background: #333; }
-    #status {
-      font-size: 13px;
-      color: #888;
-      margin-top: 0.75rem;
-      min-height: 20px;
-      text-align: center;
-    }
+    #status { font-size: 13px; color: #888; margin-top: 0.75rem; min-height: 20px; text-align: center; }
     #result {
       margin-top: 1.5rem;
       padding: 1.5rem;
@@ -79,16 +68,12 @@
 <body>
   <div class="card">
     <h1>紫微斗數命盤解讀</h1>
-
     <div class="upload-area" onclick="document.getElementById('fileInput').click()">
       <p id="uploadText">點此上傳命盤圖片</p>
       <img id="preview" />
     </div>
     <input type="file" id="fileInput" accept="image/*" />
-
-    <button class="btn" id="analyzeBtn" disabled onclick="analyze()">
-      開始解讀
-    </button>
+    <button class="btn" id="analyzeBtn" disabled onclick="analyze()">開始解讀</button>
     <div id="status"></div>
     <div id="result"></div>
   </div>
@@ -116,7 +101,7 @@
       reader.readAsDataURL(file);
     });
 
-    async function analyze() {
+    function analyze() {
       const btn = document.getElementById('analyzeBtn');
       const status = document.getElementById('status');
       const result = document.getElementById('result');
@@ -125,22 +110,29 @@
       status.textContent = '正在載入知識庫並分析命盤，請稍候...';
       result.style.display = 'none';
 
-      try {
-        const response = await fetch(GAS_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64Image, mimeType: mimeType })
-        });
-        const data = await response.json();
-        if (data.error) throw new Error(data.error);
-        result.textContent = data.result;
-        result.style.display = 'block';
-        status.textContent = '解讀完成';
-      } catch (err) {
-        status.textContent = '錯誤：' + err.message;
-      } finally {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', GAS_URL);
+      xhr.setRequestHeader('Content-Type', 'text/plain');
+
+      xhr.onload = function() {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data.error) throw new Error(data.error);
+          result.textContent = data.result;
+          result.style.display = 'block';
+          status.textContent = '解讀完成';
+        } catch (err) {
+          status.textContent = '錯誤：' + err.message;
+        }
         btn.disabled = false;
-      }
+      };
+
+      xhr.onerror = function() {
+        status.textContent = '錯誤：無法連線到伺服器';
+        btn.disabled = false;
+      };
+
+      xhr.send(JSON.stringify({ image: base64Image, mimeType: mimeType }));
     }
   </script>
 </body>
